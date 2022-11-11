@@ -1,5 +1,13 @@
-import Main from 'components/Main'
+import { ToastContainer } from 'react-toastify'
+import Login from 'templates/Login'
+
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function Home() {
-  return <Main />
+  return (
+    <>
+      <Login />
+      <ToastContainer />
+    </>
+  )
 }
