@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 
 import * as S from './style'
 
-export default function Login() {
+const Login = () => {
   const [code, setCode] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -72,3 +72,5 @@ export default function Login() {
     </S.Main>
   )
 }
+
+export default Login

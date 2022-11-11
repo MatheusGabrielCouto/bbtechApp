@@ -1,5 +1,5 @@
-import Login from './Login'
 import { ToastContainer } from 'react-toastify'
+import Login from 'templates/Login'
 
 import 'react-toastify/dist/ReactToastify.css'
 
