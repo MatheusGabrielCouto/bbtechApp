@@ -1,7 +1,9 @@
 import Button from 'components/Button'
 import InputText from 'components/InputText'
+import { UserContext } from 'context/UserContext'
 import api from 'core/api'
-import React, { useState } from 'react'
+import Router from 'next/router'
+import React, { useState, useContext } from 'react'
 import { toast } from 'react-toastify'
 
 import * as S from './style'
@@ -10,9 +12,9 @@ const Login = () => {
   const [code, setCode] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
+  const { setToken, setAuth } = useContext(UserContext)
 
   const handleSubmit = () => {
-    console.log(code, password)
     setLoading(true)
     api
       .post('/auth/login', {
@@ -20,9 +22,15 @@ const Login = () => {
         password
       })
       .then((resp) => {
-        console.log('ok', resp.data)
+        localStorage.setItem('token', resp.data.token_key)
         setLoading(false)
+        setToken(resp.data.token_key)
+        setAuth(true)
         toast.success('Login efetuado!')
+        Router.push('/home')
+        api.defaults.headers.common = {
+          Authorization: `Bearer ${resp.data.token_key}`
+        }
       })
       .catch((error) => {
         toast.error('Dados incorretos!')

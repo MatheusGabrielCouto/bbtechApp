@@ -3,10 +3,10 @@ import * as S from './style'
 
 interface IProps {
   placeholder: string
-  value: string
+  value: string | undefined
   onChange: (e: string) => void
   label?: string
-  type: 'password' | 'text'
+  type: 'password' | 'text' | 'number'
 }
 
 export default function InputText({
