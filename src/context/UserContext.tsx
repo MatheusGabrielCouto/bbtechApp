@@ -36,7 +36,8 @@ interface UserContext {
 
 export const UserContext = createContext({} as UserContext)
 
-export function UserProvider({ children }: never) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function UserProvider({ children }: any) {
   const [token, setToken] = useState('')
   const [userData, setUserData] = useState<UserData>()
   const [auth, setAuth] = useState<boolean>(false)

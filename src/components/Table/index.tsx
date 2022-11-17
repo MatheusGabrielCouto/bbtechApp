@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
 
 import * as S from './styles'
@@ -20,8 +22,8 @@ interface IProps {
   pages: Pages | undefined
   itemSelect: Book | undefined
   navigatePage: (page: number) => void
-  setItem: (data: object) => void
-  options: [IHead] | undefined
+  setItem: (data: any) => void
+  options: [IHead] | any
   openModal: (type: 'add' | 'edit') => void
 }
 
@@ -44,11 +46,11 @@ export default function Table({
   options,
   openModal
 }: IProps) {
-  const [allPages, setAllPages] = useState<number[]>()
+  const [allPages, setAllPages] = useState<any>()
 
   const renderPages = () => {
     if (pages?.lastPage !== undefined) {
-      const data: number[] = []
+      const data = []
       for (let index = 1; index <= pages?.lastPage; index++) {
         console.log(pages?.lastPage)
         data.push(index)
@@ -59,7 +61,6 @@ export default function Table({
 
   useEffect(() => {
     renderPages()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -68,7 +69,7 @@ export default function Table({
       <S.TableContent>
         <S.HeaderTableContent>
           <S.HeaderTable>
-            {options &&
+            {options !== undefined &&
               options.map((option: IHead, index: number) => (
                 <S.HeaderTitles key={index} style={{ width: option.width }}>
                   {option.title}
@@ -124,7 +125,7 @@ export default function Table({
           }}
           src="icons/chevron-left.svg"
         />
-        {allPages?.map((page: number) => (
+        {allPages?.map((page: any) => (
           <S.Page
             onClick={() => navigatePage(page)}
             style={pages?.from === page ? { backgroundColor: '#DEDEDE' } : {}}
