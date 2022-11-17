@@ -248,13 +248,13 @@ export default function Students() {
               />
             </S.FormData>
           </div>
-          <S.FormData>
+          <S.InputCheckContainer>
             <S.InputCheckbox
               type="checkbox"
               onChange={() => setIsAdmin(!isAdmin)}
-              value={isAdmin ? isAdmin : false}
+              checked={isAdmin}
             />
-          </S.FormData>
+          </S.InputCheckContainer>
 
           <S.FormData>
             <Button

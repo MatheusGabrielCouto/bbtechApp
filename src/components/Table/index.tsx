@@ -19,9 +19,9 @@ interface IProps {
   books: [Book]
   pages: Pages | undefined
   itemSelect: Book | undefined
-  navigatePage: (page: number | any) => void
-  setItem: (data: any) => void
-  options: [IHead] | any
+  navigatePage: (page: number) => void
+  setItem: (data: object) => void
+  options: [IHead] | undefined
   openModal: (type: 'add' | 'edit') => void
 }
 
@@ -44,11 +44,11 @@ export default function Table({
   options,
   openModal
 }: IProps) {
-  const [allPages, setAllPages] = useState<any>()
+  const [allPages, setAllPages] = useState<number[]>()
 
   const renderPages = () => {
     if (pages?.lastPage !== undefined) {
-      const data = []
+      const data: number[] = []
       for (let index = 1; index <= pages?.lastPage; index++) {
         console.log(pages?.lastPage)
         data.push(index)
@@ -59,6 +59,7 @@ export default function Table({
 
   useEffect(() => {
     renderPages()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -67,11 +68,12 @@ export default function Table({
       <S.TableContent>
         <S.HeaderTableContent>
           <S.HeaderTable>
-            {options.map((option: IHead, index: number) => (
-              <S.HeaderTitles key={index} style={{ width: option.width }}>
-                {option.title}
-              </S.HeaderTitles>
-            ))}
+            {options &&
+              options.map((option: IHead, index: number) => (
+                <S.HeaderTitles key={index} style={{ width: option.width }}>
+                  {option.title}
+                </S.HeaderTitles>
+              ))}
           </S.HeaderTable>
         </S.HeaderTableContent>
         <S.ItemTable>
@@ -122,7 +124,7 @@ export default function Table({
           }}
           src="icons/chevron-left.svg"
         />
-        {allPages?.map((page: any) => (
+        {allPages?.map((page: number) => (
           <S.Page
             onClick={() => navigatePage(page)}
             style={pages?.from === page ? { backgroundColor: '#DEDEDE' } : {}}

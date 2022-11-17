@@ -14,6 +14,7 @@ export default function Home() {
       setAuth(false)
       setLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const verifyToken = (tokenLocal: string | null) => {
@@ -28,7 +29,7 @@ export default function Home() {
         setLoading(false)
         setUserData(resp.data)
       })
-      .catch((error) => {
+      .catch(() => {
         setLoading(false)
       })
   }

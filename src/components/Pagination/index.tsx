@@ -47,7 +47,7 @@ export default function Pagination({ page }: IProps) {
           }
         }
       )
-      .then((resp) => {
+      .then(() => {
         setAuth(false)
         localStorage.removeItem('token')
         Router.push('/login')

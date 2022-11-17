@@ -36,7 +36,7 @@ interface UserContext {
 
 export const UserContext = createContext({} as UserContext)
 
-export function UserProvider({ children }: any) {
+export function UserProvider({ children }: never) {
   const [token, setToken] = useState('')
   const [userData, setUserData] = useState<UserData>()
   const [auth, setAuth] = useState<boolean>(false)
@@ -65,7 +65,7 @@ export function UserProvider({ children }: any) {
         setLoading(false)
         setUserData(resp.data)
       })
-      .catch((error) => {
+      .catch(() => {
         setLoading(false)
         Router.push('/')
       })

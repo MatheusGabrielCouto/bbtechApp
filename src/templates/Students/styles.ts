@@ -149,4 +149,6 @@ export const OpenButtonContainer = styled.div`
 
 export const OpenButton = styled.img``
 
+export const InputCheckContainer = styled.div``
+
 export const InputCheckbox = styled.input``

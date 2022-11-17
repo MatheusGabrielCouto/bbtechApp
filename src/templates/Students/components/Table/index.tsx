@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react'
 
 import * as S from './styles'
@@ -57,6 +58,7 @@ export default function Table({
 
   useEffect(() => {
     renderPages()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
