@@ -3,7 +3,6 @@ import Pagination from 'components/Pagination'
 import * as S from './style'
 import { UserContext } from 'context/UserContext'
 import api from 'core/api'
-import Router from 'next/router'
 
 export default function Home() {
   const { setAuth, setLoading, setUserData } = useContext(UserContext)

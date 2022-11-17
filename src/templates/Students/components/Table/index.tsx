@@ -2,23 +2,21 @@ import React, { useEffect, useState } from 'react'
 
 import * as S from './styles'
 
-interface Book {
+interface Student {
+  institution_id: string
   id: number
-  library_id: string
   name: string
-  description: string
-  classification: string
-  author: string
-  publisher: string
-  amount: string
-  avatar: string
+  username: string
+  email: string
+  type: string
   status: string
+  is_admin: boolean
 }
 
 interface IProps {
-  books: [Book]
+  items: [Student]
   pages: Pages | undefined
-  itemSelect: Book | undefined
+  itemSelect: Student | undefined
   navigatePage: (page: number | any) => void
   setItem: (data: any) => void
   options: [IHead] | any
@@ -36,7 +34,7 @@ interface Pages {
 }
 
 export default function Table({
-  books,
+  items,
   pages,
   navigatePage,
   setItem,
@@ -75,7 +73,7 @@ export default function Table({
           </S.HeaderTable>
         </S.HeaderTableContent>
         <S.ItemTable>
-          {books.map((item, index) => (
+          {items.map((item, index) => (
             <S.ItemContainer
               onClick={() => {
                 setItem(item)
@@ -105,7 +103,7 @@ export default function Table({
               <S.ItemValue
                 style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
               >
-                {item.author}
+                {item.email}
               </S.ItemValue>
             </S.ItemContainer>
           ))}

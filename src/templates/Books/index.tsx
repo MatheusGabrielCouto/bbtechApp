@@ -1,9 +1,11 @@
+import React, { useEffect, useState } from 'react'
+import ImageUploading, { ImageListType } from 'react-images-uploading'
+
 import Button from 'components/Button'
 import InputText from 'components/InputText'
 import Pagination from 'components/Pagination'
 import Table from 'components/Table'
 import api from 'core/api'
-import React, { useEffect, useState } from 'react'
 
 import * as S from './styles'
 
@@ -18,6 +20,11 @@ interface Book {
   amount: string
   avatar: string
   status: string
+  place: {
+    shelf: string
+    row: string
+    collum: string
+  }
 }
 
 interface Pages {
@@ -35,7 +42,14 @@ export default function Books() {
   const [author, setAuthor] = useState<string>()
   const [publisher, setPublisher] = useState<string>()
   const [amount, setAmount] = useState<string>()
+  const [shelf, setShelf] = useState<string>()
+  const [row, setRow] = useState<string>()
+  const [collum, setCollum] = useState<string>()
+  const [typeModal, setTypeModal] = useState<'add' | 'edit'>()
   const [openEdit, setOpenEdit] = useState(false)
+  const maxNumber = 69
+
+  const [images, setImages] = React.useState([])
 
   const tableHead = [
     {
@@ -59,6 +73,15 @@ export default function Books() {
   useEffect(() => {
     getbooks()
   }, [])
+
+  const onChange = (
+    imageList: ImageListType,
+    addUpdateIndex: number[] | undefined
+  ) => {
+    // data for submit
+    console.log(imageList, addUpdateIndex)
+    setImages(imageList as never[])
+  }
 
   const getbooks = async () => {
     const token = localStorage.getItem('token')
@@ -98,35 +121,74 @@ export default function Books() {
       .catch((error) => console.log(error))
   }
 
-  const openModalEdit = () => {
-    setName(book?.name)
-    setDescription(book?.description)
-    setAuthor(book?.author)
-    setAmount(book?.amount)
-    setClassification(book?.classification)
-    setPublisher(book?.publisher)
-    setOpenEdit(true)
+  const openModal = (type: 'edit' | 'add') => {
+    if (type === 'edit') {
+      setName(book?.name)
+      setShelf(book?.place?.shelf)
+      setRow(book?.place?.row)
+      setCollum(book?.place?.collum)
+      setDescription(book?.description)
+      setAuthor(book?.author)
+      setAmount(book?.amount)
+      setClassification(book?.classification)
+      setPublisher(book?.publisher)
+      setTypeModal('edit')
+      setOpenEdit(true)
+    } else {
+      setShelf('')
+      setRow('')
+      setCollum('')
+      setName('')
+      setTypeModal('add')
+      setDescription('')
+      setAuthor('')
+      setAmount('')
+      setClassification('')
+      setPublisher('')
+      setOpenEdit(true)
+    }
   }
 
   const editbook = async () => {
-    api
-      .post(`/books/${book?.id}?_method=PATCH`, {
-        library_id: '1',
-        name,
-        description,
-        classification,
-        author,
-        publisher,
-        amount,
-        avatar: null,
-        status: true
-      })
-      .then((resp) => {
-        console.log(resp.data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    if (typeModal === 'edit') {
+      api
+        .post(`/books/${book?.id}?_method=PATCH`, {
+          library_id: '1',
+          name,
+          description,
+          classification,
+          author,
+          publisher,
+          amount,
+          avatar: null,
+          status: true
+        })
+        .then((resp) => {
+          console.log(resp.data)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    } else {
+      api
+        .post(`/books/${book?.id}?_method=PATCH`, {
+          library_id: '1',
+          name,
+          description,
+          classification,
+          author,
+          publisher,
+          amount,
+          avatar: null,
+          status: true
+        })
+        .then((resp) => {
+          console.log(resp.data)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
   }
 
   return (
@@ -139,6 +201,7 @@ export default function Books() {
         <S.ViewContainer>
           {books !== undefined && (
             <Table
+              openModal={openModal}
               options={tableHead}
               setItem={setBook}
               itemSelect={book}
@@ -185,7 +248,7 @@ export default function Books() {
                   <S.BookDesc>Não locado</S.BookDesc>
                 </S.BookInformation>
               </S.BookCollum>
-              <S.OpenButtonContainer onClick={openModalEdit}>
+              <S.OpenButtonContainer onClick={() => openModal('edit')}>
                 <S.OpenButton src="icons/edit.svg" />
               </S.OpenButtonContainer>
             </S.BookContainer>
@@ -197,7 +260,9 @@ export default function Books() {
       >
         <S.ModalClose onClick={() => setOpenEdit(false)} />
         <S.FormContainer>
-          <S.FormTitle>Editar livro</S.FormTitle>
+          <S.FormTitle>
+            {typeModal === 'add' ? 'Adicionar livro' : 'Editar livro'}
+          </S.FormTitle>
           <S.FormData>
             <InputText
               type="text"
@@ -216,42 +281,117 @@ export default function Books() {
               placeholder="Digite a descrição"
             />
           </S.FormData>
-          <S.FormData>
-            <InputText
-              type="text"
-              label="Classificação"
-              value={classification}
-              onChange={setClassification}
-              placeholder="Digite aqui"
-            />
-          </S.FormData>
-          <S.FormData>
-            <InputText
-              type="text"
-              label="Autor"
-              value={author}
-              onChange={setAuthor}
-              placeholder="Digite aqui"
-            />
-          </S.FormData>
-          <S.FormData>
-            <InputText
-              type="text"
-              label="Publicadora"
-              value={publisher}
-              onChange={setPublisher}
-              placeholder="Digite aqui"
-            />
-          </S.FormData>
-          <S.FormData>
-            <InputText
-              type="number"
-              label="Quantidade"
-              value={amount}
-              onChange={setAmount}
-              placeholder="Digite aqui"
-            />
-          </S.FormData>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <S.FormData style={{ width: '30%' }}>
+              <InputText
+                type="text"
+                label="Classificação"
+                value={classification}
+                onChange={setClassification}
+                placeholder="Digite aqui"
+              />
+            </S.FormData>
+            <S.FormData style={{ width: '68%' }}>
+              <InputText
+                type="text"
+                label="Autor"
+                value={author}
+                onChange={setAuthor}
+                placeholder="Digite aqui"
+              />
+            </S.FormData>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <S.FormData style={{ width: '49%' }}>
+              <InputText
+                type="text"
+                label="Publicadora"
+                value={publisher}
+                onChange={setPublisher}
+                placeholder="Digite aqui"
+              />
+            </S.FormData>
+            <S.FormData style={{ width: '49%' }}>
+              <InputText
+                type="number"
+                label="Quantidade"
+                value={amount}
+                onChange={setAmount}
+                placeholder="Digite aqui"
+              />
+            </S.FormData>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <S.FormDataRow>
+              <InputText
+                type="text"
+                label="Prateleira"
+                value={shelf}
+                onChange={setShelf}
+                placeholder="Digite aqui"
+              />
+            </S.FormDataRow>
+            <S.FormDataRow>
+              <InputText
+                type="text"
+                label="Fileira"
+                value={row}
+                onChange={setRow}
+                placeholder="Digite aqui"
+              />
+            </S.FormDataRow>
+            <S.FormDataRow>
+              <InputText
+                type="text"
+                label="Coluna"
+                value={collum}
+                onChange={setCollum}
+                placeholder="Digite aqui"
+              />
+            </S.FormDataRow>
+          </div>
+          <ImageUploading
+            multiple
+            value={images}
+            onChange={onChange}
+            maxNumber={maxNumber}
+          >
+            {({
+              imageList,
+              onImageUpload,
+              onImageUpdate,
+              onImageRemove,
+              isDragging,
+              dragProps
+            }) => (
+              <>
+                {imageList.length === 0 && (
+                  <S.ImageDragContanier>
+                    <S.ImageDrag
+                      style={isDragging ? { color: 'red' } : undefined}
+                      onClick={onImageUpload}
+                      {...dragProps}
+                    >
+                      Aperte ou arraste a imagem aqui
+                    </S.ImageDrag>
+                  </S.ImageDragContanier>
+                )}
+                {imageList.map((image, index) => (
+                  <S.ImageContainer key={index} className="image-item">
+                    <S.ImageSelected src={image.dataURL} alt="" width="100" />
+                    <div className="image-item__btn-wrapper">
+                      <button onClick={() => onImageUpdate(index)}>
+                        Update
+                      </button>
+                      <button onClick={() => onImageRemove(index)}>
+                        Remove
+                      </button>
+                    </div>
+                  </S.ImageContainer>
+                ))}
+              </>
+            )}
+          </ImageUploading>
           <S.FormData>
             <Button
               disabled={false}

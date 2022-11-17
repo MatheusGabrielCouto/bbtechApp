@@ -10,7 +10,7 @@ interface IProps {
 }
 
 export default function Pagination({ page }: IProps) {
-  const { userData, setAuth, setUserData, token } = useContext(UserContext)
+  const { userData, setAuth, setUserData } = useContext(UserContext)
 
   const pages = [
     {
@@ -26,8 +26,8 @@ export default function Pagination({ page }: IProps) {
       page: '/books'
     },
     {
-      title: 'Turmas',
-      page: '/classes'
+      title: 'Alunos',
+      page: '/students'
     }
   ]
 
@@ -37,9 +37,16 @@ export default function Pagination({ page }: IProps) {
 
   const logout = async () => {
     const tokenLocal: string | null = await localStorage.getItem('token')
-    console.log(tokenLocal)
     api
-      .post('/auth/logout')
+      .post(
+        '/auth/logout',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${tokenLocal}`
+          }
+        }
+      )
       .then((resp) => {
         setAuth(false)
         localStorage.removeItem('token')
@@ -69,20 +76,31 @@ export default function Pagination({ page }: IProps) {
         <S.PerfilImage src="/icons/book.svg" />
         <S.PerfilName>{userData?.name}</S.PerfilName>
       </S.PerfilContainer>
-      {pages.map((pagemap, index) => (
+      {userData?.is_admin === '1' ? (
+        pages.map((pagemap, index) => (
+          <S.ItemContainer
+            style={{
+              backgroundColor: pagemap.page === page ? '#655EEE' : 'none'
+            }}
+            key={index}
+            onClick={() => {
+              navigate(pagemap.page)
+            }}
+          >
+            <S.ItemImage src="/icons/book-open.svg" />
+            <S.ItemText>{pagemap.title}</S.ItemText>
+          </S.ItemContainer>
+        ))
+      ) : (
         <S.ItemContainer
           style={{
-            backgroundColor: pagemap.page === page ? '#655EEE' : 'none'
-          }}
-          key={index}
-          onClick={() => {
-            navigate(pagemap.page)
+            backgroundColor: '#655EEE'
           }}
         >
           <S.ItemImage src="/icons/book-open.svg" />
-          <S.ItemText>{pagemap.title}</S.ItemText>
+          <S.ItemText>Página inicial</S.ItemText>
         </S.ItemContainer>
-      ))}
+      )}
       <S.ExitContainer onClick={logout}>
         <S.ItemTextExit>Sair</S.ItemTextExit>
         <S.ItemImage src="/icons/log-out.svg" />
