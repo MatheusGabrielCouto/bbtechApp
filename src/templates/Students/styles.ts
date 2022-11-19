@@ -61,6 +61,25 @@ export const FormContainer = styled.div`
   flex-direction: column;
   z-index: 2;
   overflow: auto;
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: ${colors.w01};
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${colors.l01};
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${colors.l02};
+  }
 `
 
 export const FormTitle = styled.h1`

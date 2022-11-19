@@ -18,16 +18,16 @@ export default function Pagination({ page }: IProps) {
       page: '/home'
     },
     {
-      title: 'Prateleiras',
-      page: '/shelves'
-    },
-    {
       title: 'Livros',
       page: '/books'
     },
     {
       title: 'Alunos',
       page: '/students'
+    },
+    {
+      title: 'locações',
+      page: '/locations'
     }
   ]
 

@@ -10,6 +10,7 @@ export const Container = styled.div`
   position: relative;
   margin-bottom: 15px;
   position: relative;
+  min-height: 235px;
 `
 
 export const TableContent = styled.table`

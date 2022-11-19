@@ -1,6 +1,8 @@
 import { UserProvider } from 'context/UserContext'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import GlobalStyles from 'styles/global'
 
@@ -19,6 +21,7 @@ function App({ Component, pageProps }: AppProps) {
       <GlobalStyles />
       <UserProvider>
         <Component {...pageProps} />
+        <ToastContainer />
       </UserProvider>
     </>
   )

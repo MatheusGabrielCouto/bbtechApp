@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react'
 import * as S from './styles'
 import InputText from 'components/InputText'
 import Button from 'components/Button'
+import { toast } from 'react-toastify'
 
 interface Student {
   institution_id: string
@@ -28,11 +29,9 @@ export default function Students() {
   const [pages, setPages] = useState<Pages>()
   const [student, setStudent] = useState<Student>()
   const [openEdit, setOpenEdit] = useState(false)
-  const [instituition, setInstituition] = useState<string>()
   const [name, setName] = useState<string>()
   const [email, setEmail] = useState<string>()
   const [password, setPassword] = useState<string>()
-  const [isAdmin, setIsAdmin] = useState<boolean>()
   const [typeModal, setTypeModal] = useState<'add' | 'edit'>()
 
   const tableHead = [
@@ -70,8 +69,7 @@ export default function Students() {
         }
       })
       .then((resp) => {
-        console.log(resp.data)
-        setStudents(resp.data)
+        setStudents(resp.data.data)
         setPages({
           from: resp.data.current_page,
           lastPage: resp.data.last_page
@@ -83,17 +81,14 @@ export default function Students() {
   const openModal = (type: 'edit' | 'add') => {
     if (type === 'edit') {
       setOpenEdit(true)
-      setInstituition(student?.institution_id)
       setName(student?.name)
       setEmail(student?.email)
-      setIsAdmin(student?.is_admin)
       setTypeModal('edit')
     } else {
       setTypeModal('add')
-      setInstituition('')
       setName('')
       setEmail('')
-      setIsAdmin(false)
+      setPassword('')
       setOpenEdit(true)
     }
   }
@@ -101,35 +96,37 @@ export default function Students() {
   const editStudent = async () => {
     if (typeModal === 'edit') {
       api
-        .post(`/Students/${student?.id}?_method=PATCH`, {
-          institution_id: 1,
+        .patch(`/users/${student?.id}`, {
           name,
           email,
           password,
-          instituition,
-          isAdmin
+          username: student?.username
         })
-        .then((resp) => {
-          console.log(resp.data)
+        .then(() => {
+          getStudents()
+          toast.success('Usuário alterado com sucesso!')
+          setOpenEdit(false)
         })
-        .catch((error) => {
-          console.log(error)
+        .catch(() => {
+          toast.success('Tivemos um erro ao editar o usuário!')
         })
     } else {
       api
-        .post(`/Students/${student?.id}?_method=PATCH`, {
+        .post(`/users`, {
           institution_id: 1,
           name,
           email,
           password,
-          instituition,
-          isAdmin
+          passwordConfirmation: password,
+          is_admin: false
         })
-        .then((resp) => {
-          console.log(resp.data)
+        .then(() => {
+          getStudents()
+          toast.success('Usuário criado com sucesso!')
+          setOpenEdit(false)
         })
-        .catch((error) => {
-          console.log(error)
+        .catch(() => {
+          toast.success('Tivemos um erro ao criar o usuário!')
         })
     }
   }
@@ -161,31 +158,27 @@ export default function Students() {
             <S.StudentContainer>
               <S.StudentCollum>
                 <S.StudentInformation>
-                  <S.StudentTitle>Código</S.StudentTitle>
+                  <S.StudentTitle>Identificação</S.StudentTitle>
                   <S.StudentDesc>{student.id}</S.StudentDesc>
                 </S.StudentInformation>
                 <S.StudentInformation>
-                  <S.StudentTitle>Nome do livro</S.StudentTitle>
+                  <S.StudentTitle>Nome</S.StudentTitle>
                   <S.StudentDesc>{student.name}</S.StudentDesc>
                 </S.StudentInformation>
                 <S.StudentInformation>
                   <S.StudentTitle>Status</S.StudentTitle>
                   <S.StudentDesc>
-                    {student.status === 'active' ? 'Livre' : 'Locado'}
+                    {student.status === 'active' ? 'Ativo' : 'Cancelado'}
                   </S.StudentDesc>
                 </S.StudentInformation>
               </S.StudentCollum>
               <S.StudentCollum>
                 <S.StudentInformation>
-                  <S.StudentTitle>Autor</S.StudentTitle>
+                  <S.StudentTitle>E-mail</S.StudentTitle>
                   <S.StudentDesc>{student.email}</S.StudentDesc>
                 </S.StudentInformation>
                 <S.StudentInformation>
-                  <S.StudentTitle>Publicadora</S.StudentTitle>
-                  <S.StudentDesc>{student.institution_id}</S.StudentDesc>
-                </S.StudentInformation>
-                <S.StudentInformation>
-                  <S.StudentTitle>Descrição</S.StudentTitle>
+                  <S.StudentTitle>Nome de usuário</S.StudentTitle>
                   <S.StudentDesc>{student.username}</S.StudentDesc>
                 </S.StudentInformation>
               </S.StudentCollum>
@@ -213,7 +206,7 @@ export default function Students() {
           <S.FormData>
             <InputText
               type="text"
-              label="Nome do livro"
+              label="Nome"
               value={name}
               onChange={setName}
               placeholder="Digite o nome"
@@ -228,33 +221,23 @@ export default function Students() {
               placeholder="Digite a descrição"
             />
           </S.FormData>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'start',
+              alignItems: 'center'
+            }}
+          >
             <S.FormData style={{ width: '30%' }}>
               <InputText
-                type="text"
+                type="password"
                 label="Senha"
                 value={password}
                 onChange={setPassword}
                 placeholder="Digite aqui"
               />
             </S.FormData>
-            <S.FormData style={{ width: '68%' }}>
-              <InputText
-                type="text"
-                label="Instituição"
-                value={instituition}
-                onChange={setInstituition}
-                placeholder="Digite aqui"
-              />
-            </S.FormData>
           </div>
-          <S.InputCheckContainer>
-            <S.InputCheckbox
-              type="checkbox"
-              onChange={() => setIsAdmin(!isAdmin)}
-              checked={isAdmin}
-            />
-          </S.InputCheckContainer>
 
           <S.FormData>
             <Button
