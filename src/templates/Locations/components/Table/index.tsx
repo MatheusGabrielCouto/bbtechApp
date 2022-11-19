@@ -3,25 +3,47 @@ import React, { useEffect, useState } from 'react'
 
 import * as S from './styles'
 
-interface Student {
-  institution_id: string
+interface Rent {
   id: number
-  name: string
-  username: string
-  email: string
-  type: string
-  status: string
-  is_admin: boolean
+  due_date: string
+  rented_by: string
+  book: {
+    id: number
+    library_id: string
+    name: string
+    description: string
+    classification: string
+    author: string
+    publisher: string
+    amount: string
+    avatar: string
+    status: string
+    category: string
+    place: {
+      shelf: string
+      row: string
+      collum: string
+    }
+  }
+  user: {
+    institution_id: string
+    id: number
+    name: string
+    username: string
+    email: string
+    type: string
+    status: string
+    is_admin: boolean
+  }
 }
 
 interface IProps {
-  items: [Student]
+  items: [Rent] | undefined
   pages: Pages | undefined
-  itemSelect: Student | undefined
+  itemSelect: Rent | undefined
   navigatePage: (page: number | any) => void
   setItem: (data: any) => void
   options: [IHead] | any
-  openModal: (type: 'add' | 'edit') => void
 }
 
 interface IHead {
@@ -40,8 +62,7 @@ export default function Table({
   navigatePage,
   setItem,
   itemSelect,
-  options,
-  openModal
+  options
 }: IProps) {
   const [allPages, setAllPages] = useState<any>()
 
@@ -49,7 +70,6 @@ export default function Table({
     if (pages?.lastPage !== undefined) {
       const data = []
       for (let index = 1; index <= pages?.lastPage; index++) {
-        console.log(pages?.lastPage)
         data.push(index)
       }
       setAllPages(data)
@@ -63,7 +83,6 @@ export default function Table({
 
   return (
     <S.Container>
-      <S.IconCreate onClick={() => openModal('add')} src="icons/add.svg" />
       <S.TableContent>
         <S.HeaderTableContent>
           <S.HeaderTable>
@@ -75,40 +94,46 @@ export default function Table({
           </S.HeaderTable>
         </S.HeaderTableContent>
         <S.ItemTable>
-          {items?.map((item, index) => (
-            <S.ItemContainer
-              onClick={() => {
-                setItem(item)
-              }}
-              style={
-                itemSelect?.id === item.id
-                  ? { backgroundColor: '#B1ADF5', color: '#F7F7F7' }
-                  : {}
-              }
-              key={index}
-            >
-              <S.ItemValue
-                style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
+          {items?.map((item, index) => {
+            const date = new Date(item.due_date)
+            const fullYear = date.getFullYear()
+            const month = date.getMonth()
+            const day = date.getDate()
+            return (
+              <S.ItemContainer
+                onClick={() => {
+                  setItem(item)
+                }}
+                style={
+                  itemSelect?.id === item.id
+                    ? { backgroundColor: '#B1ADF5', color: '#F7F7F7' }
+                    : {}
+                }
+                key={index}
               >
-                {item.id}
-              </S.ItemValue>
-              <S.ItemValue
-                style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
-              >
-                {item.name}
-              </S.ItemValue>
-              <S.ItemValue
-                style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
-              >
-                {item.status === 'active' ? 'Livre' : 'Locado'}
-              </S.ItemValue>
-              <S.ItemValue
-                style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
-              >
-                {item.email}
-              </S.ItemValue>
-            </S.ItemContainer>
-          ))}
+                <S.ItemValue
+                  style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
+                >
+                  {item.id}
+                </S.ItemValue>
+                <S.ItemValue
+                  style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
+                >
+                  {item.book.name}
+                </S.ItemValue>
+                <S.ItemValue
+                  style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
+                >
+                  {item.user.name}
+                </S.ItemValue>
+                <S.ItemValue
+                  style={itemSelect?.id === item.id ? { color: '#F7F7F7' } : {}}
+                >
+                  {`${day}/${month}/${fullYear}`}
+                </S.ItemValue>
+              </S.ItemContainer>
+            )
+          })}
         </S.ItemTable>
       </S.TableContent>
       <S.PagesContainer>

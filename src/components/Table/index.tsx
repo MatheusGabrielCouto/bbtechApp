@@ -52,7 +52,6 @@ export default function Table({
     if (pages?.lastPage !== undefined) {
       const data = []
       for (let index = 1; index <= pages?.lastPage; index++) {
-        console.log(pages?.lastPage)
         data.push(index)
       }
       setAllPages(data)

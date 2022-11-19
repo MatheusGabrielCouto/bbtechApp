@@ -8,9 +8,16 @@ interface IProps {
   label: string
   onPress: () => void
   loading: boolean
+  style?: object
 }
 
-export default function Button({ disabled, label, onPress, loading }: IProps) {
+export default function Button({
+  disabled,
+  label,
+  onPress,
+  loading,
+  style
+}: IProps) {
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -22,7 +29,11 @@ export default function Button({ disabled, label, onPress, loading }: IProps) {
 
   return (
     <S.ButtonContainer>
-      <S.Button onClick={onPress} disabled={disabled || loading}>
+      <S.Button
+        style={{ ...style }}
+        onClick={onPress}
+        disabled={disabled || loading}
+      >
         {loading === true ? (
           <Lottie options={defaultOptions} width="40px" height="40px" />
         ) : (

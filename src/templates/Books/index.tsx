@@ -8,6 +8,8 @@ import Table from 'components/Table'
 import api from 'core/api'
 
 import * as S from './styles'
+import { toast } from 'react-toastify'
+import SearchInput from 'components/SearchInput'
 
 interface Book {
   id: number
@@ -20,6 +22,7 @@ interface Book {
   amount: string
   avatar: string
   status: string
+  category: string
   place: {
     shelf: string
     row: string
@@ -32,6 +35,11 @@ interface Pages {
   lastPage: number
 }
 
+interface Category {
+  id: number
+  name: string
+}
+
 export default function Books() {
   const [books, setBooks] = useState<[Book]>()
   const [pages, setPages] = useState<Pages>()
@@ -42,11 +50,15 @@ export default function Books() {
   const [author, setAuthor] = useState<string>()
   const [publisher, setPublisher] = useState<string>()
   const [amount, setAmount] = useState<string>()
+  const [category, setCategory] = useState<string>()
   const [shelf, setShelf] = useState<string>()
   const [row, setRow] = useState<string>()
   const [collum, setCollum] = useState<string>()
   const [typeModal, setTypeModal] = useState<'add' | 'edit'>()
   const [openEdit, setOpenEdit] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [openModalCategory, setOpenModalCategory] = useState(false)
+  const [allCategories, setAllCategories] = useState<[Category]>()
   const maxNumber = 69
 
   const [images, setImages] = React.useState([])
@@ -72,14 +84,10 @@ export default function Books() {
 
   useEffect(() => {
     getbooks()
+    getCategories()
   }, [])
 
-  const onChange = (
-    imageList: ImageListType,
-    addUpdateIndex: number[] | undefined
-  ) => {
-    // data for submit
-    console.log(imageList, addUpdateIndex)
+  const onChange = (imageList: ImageListType) => {
     setImages(imageList as never[])
   }
 
@@ -101,7 +109,7 @@ export default function Books() {
           lastPage: resp.data.last_page
         })
       })
-      .catch((error) => console.log(error))
+      .catch(() => toast.error('Tivemos um erro ao buscar os livros'))
   }
 
   const navigatePage = (page: number) => {
@@ -132,6 +140,7 @@ export default function Books() {
       setAmount(book?.amount)
       setClassification(book?.classification)
       setPublisher(book?.publisher)
+      setCategory(book?.category)
       setTypeModal('edit')
       setOpenEdit(true)
     } else {
@@ -145,48 +154,98 @@ export default function Books() {
       setAmount('')
       setClassification('')
       setPublisher('')
+      setCategory('')
       setOpenEdit(true)
     }
   }
 
   const editbook = async () => {
+    setLoading(true)
     if (typeModal === 'edit') {
       api
         .post(`/books/${book?.id}?_method=PATCH`, {
-          library_id: '1',
+          library_id: 1,
           name,
           description,
           classification,
           author,
           publisher,
-          amount,
-          avatar: null,
-          status: true
+          amount: Number(amount),
+          place: {
+            shelf,
+            row,
+            column: collum
+          },
+          category: 1
         })
-        .then((resp) => {
-          console.log(resp.data)
+        .then(() => {
+          setLoading(false)
+          getbooks()
+          setOpenEdit(false)
+          toast.success('Livro alterado com sucesso!')
         })
-        .catch((error) => {
-          console.log(error)
+        .catch(() => {
+          toast.error('Tivemos um problema ao alterar os dados do livro!')
+          setLoading(false)
         })
     } else {
+      const data = {
+        library_id: 1,
+        name,
+        description,
+        classification,
+        author,
+        publisher,
+        amount: Number(amount),
+        place: {
+          shelf,
+          row,
+          column: collum
+        },
+        category: 1
+      }
       api
-        .post(`/books/${book?.id}?_method=PATCH`, {
-          library_id: '1',
-          name,
-          description,
-          classification,
-          author,
-          publisher,
-          amount,
-          avatar: null,
-          status: true
+        .post(`/books`, data)
+        .then(() => {
+          toast.success('Livro criado com sucesso!')
+          getbooks()
+          setLoading(false)
+          setOpenEdit(false)
         })
-        .then((resp) => {
-          console.log(resp.data)
+        .catch(() => {
+          toast.error('Tivemos um problema ao criar o livro!')
+          setLoading(false)
         })
-        .catch((error) => {
-          console.log(error)
+    }
+  }
+
+  const getCategories = async () => {
+    api
+      .get('/categories')
+      .then((resp) => {
+        setAllCategories(resp.data.data)
+      })
+      .catch(() => {
+        toast.error('Tivemos um erro ao buscar as categorias')
+      })
+  }
+
+  const createCategory = async (key: string) => {
+    if (key === 'Enter') {
+      setOpenModalCategory(true)
+    } else if (key === 'save') {
+      api
+        .post('/categories', {
+          name: category
+        })
+        .then(() => {
+          getCategories()
+          setOpenModalCategory(false)
+          toast.success('Categoria criada com sucesso')
+        })
+        .catch(() => {
+          setOpenModalCategory(false)
+          toast.error('Tivemos um erro ao criar as categorias')
         })
     }
   }
@@ -283,13 +342,18 @@ export default function Books() {
           </S.FormData>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <S.FormData style={{ width: '30%' }}>
-              <InputText
-                type="text"
-                label="Classificação"
-                value={classification}
-                onChange={setClassification}
-                placeholder="Digite aqui"
-              />
+              <S.Label>Classificação</S.Label>
+              <S.InputSelect
+                onChange={({ target }) => {
+                  setClassification(target.value)
+                }}
+              >
+                <S.InputOption disabled selected>
+                  Selecione um tipo
+                </S.InputOption>
+                <S.InputOption value="municipal">Municipal</S.InputOption>
+                <S.InputOption value="state">Estadual</S.InputOption>
+              </S.InputSelect>
             </S.FormData>
             <S.FormData style={{ width: '68%' }}>
               <InputText
@@ -350,6 +414,17 @@ export default function Books() {
               />
             </S.FormDataRow>
           </div>
+          <S.FormData>
+            <SearchInput
+              type="text"
+              label="Categoria"
+              allCategories={allCategories}
+              value={category}
+              onChange={setCategory}
+              placeholder="Digite aqui"
+              keyPress={createCategory}
+            />
+          </S.FormData>
           <ImageUploading
             multiple
             value={images}
@@ -395,13 +470,41 @@ export default function Books() {
           <S.FormData>
             <Button
               disabled={false}
-              loading={false}
+              loading={loading}
               label="Salvar"
               onPress={editbook}
             />
           </S.FormData>
         </S.FormContainer>
       </S.ModalEditContainer>
+      {openModalCategory === true && (
+        <S.ModalCreateCategory>
+          <S.CreateCategoryContainer>
+            <S.CreateCategoryTitle>
+              Não existe essa categoria, deseja criar uma?
+            </S.CreateCategoryTitle>
+            <S.CreateCategoryButtons>
+              <div style={{ width: '49%' }}>
+                <Button
+                  style={{ backgroundColor: '#2E2E2E' }}
+                  disabled={false}
+                  loading={loading}
+                  label="Não"
+                  onPress={() => setOpenModalCategory(false)}
+                />
+              </div>
+              <div style={{ width: '49%' }}>
+                <Button
+                  disabled={false}
+                  loading={loading}
+                  label="Sim"
+                  onPress={() => createCategory('save')}
+                />
+              </div>
+            </S.CreateCategoryButtons>
+          </S.CreateCategoryContainer>
+        </S.ModalCreateCategory>
+      )}
     </S.Container>
   )
 }
